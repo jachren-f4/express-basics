@@ -69,6 +69,33 @@ class UserController {
             next(error);
         }
     };
+
+    getUserProfile = async (req, res, next) => {
+        try {
+            const user = await this.userService.getUserById(req.user.id);
+            ResponseFormatter.success(res, user);
+        } catch (error) {
+            if (error.status === HTTP_STATUS.NOT_FOUND) {
+                return ResponseFormatter.notFound(res, error.message);
+            }
+            next(error);
+        }
+    };
+
+    updateUserProfile = async (req, res, next) => {
+        try {
+            const result = await this.userService.updateUser(req.user.id, req.body);
+            ResponseFormatter.success(res, result);
+        } catch (error) {
+            if (error.status === HTTP_STATUS.NOT_FOUND) {
+                return ResponseFormatter.notFound(res, error.message);
+            }
+            if (error.status === HTTP_STATUS.CONFLICT) {
+                return ResponseFormatter.conflict(res, error.message);
+            }
+            next(error);
+        }
+    };
 }
 
 module.exports = UserController;

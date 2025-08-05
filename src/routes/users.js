@@ -49,4 +49,18 @@ router.delete('/:id',
     userController.deleteUser
 );
 
+// GET user profile - authenticated user's own profile
+router.get('/profile/me',
+    authenticate,
+    userController.getUserProfile
+);
+
+// PUT update user profile - authenticated user's own profile
+router.put('/profile/me',
+    authenticate,
+    userValidators.updateProfile,
+    handleValidationErrors,
+    userController.updateUserProfile
+);
+
 module.exports = router;
