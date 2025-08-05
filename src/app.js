@@ -13,6 +13,7 @@ const authRoutes = require('./routes/auth');
 
 // Import middleware
 const errorHandler = require('./middleware/errorHandler');
+const { generalLimiter } = require('./middleware/rateLimiter');
 
 // Validate configuration
 validateConfig();
@@ -22,6 +23,7 @@ const app = express();
 
 // Middleware
 app.use(helmet()); // Security headers
+app.use(generalLimiter); // Apply general rate limiting for security
 app.use(cors()); // Enable CORS
 app.use(morgan('dev')); // Logging
 app.use(express.json()); // Parse JSON bodies
