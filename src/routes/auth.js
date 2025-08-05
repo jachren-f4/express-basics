@@ -55,4 +55,30 @@ router.post('/refresh-token',
     authController.refreshToken
 );
 
+// Email verification routes
+router.post('/verify-email',
+    authValidators.verifyEmail,
+    handleValidationErrors,
+    authController.verifyEmail
+);
+
+router.post('/resend-verification',
+    authValidators.resendVerification,
+    handleValidationErrors,
+    authController.resendVerification
+);
+
+// Password reset routes
+router.post('/forgot-password',
+    authValidators.forgotPassword,
+    handleValidationErrors,
+    authController.forgotPassword
+);
+
+router.post('/reset-password',
+    authValidators.resetPassword,
+    handleValidationErrors,
+    authController.resetPassword
+);
+
 module.exports = router;
