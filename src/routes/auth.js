@@ -4,17 +4,24 @@ const AuthController = require('../controllers/AuthController');
 const authValidators = require('../validators/authValidators');
 const handleValidationErrors = require('../middleware/validationHandler');
 const { authenticate } = require('../middleware/auth');
+const { 
+    authenticationLimiter, 
+    registrationLimiter, 
+    passwordResetLimiter 
+} = require('../middleware/rateLimiter');
 
 const authController = new AuthController();
 
-// Public routes
+// Public routes with rate limiting for security
 router.post('/register',
+    registrationLimiter,
     authValidators.register,
     handleValidationErrors,
     authController.register
 );
 
 router.post('/login',
+    authenticationLimiter,
     authValidators.login,
     handleValidationErrors,
     authController.login
@@ -35,6 +42,7 @@ router.put('/profile',
 
 router.post('/change-password',
     authenticate,
+    passwordResetLimiter,
     authValidators.changePassword,
     handleValidationErrors,
     authController.changePassword

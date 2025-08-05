@@ -13,6 +13,13 @@ const authRoutes = require('./routes/auth');
 
 // Import middleware
 const errorHandler = require('./middleware/errorHandler');
+const { generalLimiter } = require('./middleware/rateLimiter');
+const { 
+    requestLogger, 
+    performanceLogger, 
+    errorLogger, 
+    attachLogger 
+} = require('./middleware/requestLogger');
 
 // Validate configuration
 validateConfig();
@@ -22,8 +29,12 @@ const app = express();
 
 // Middleware
 app.use(helmet()); // Security headers
+app.use(generalLimiter); // Apply general rate limiting for security
+app.use(requestLogger); // Comprehensive request logging
+app.use(performanceLogger); // Performance monitoring
+app.use(attachLogger); // Attach logger to request object
 app.use(cors()); // Enable CORS
-app.use(morgan('dev')); // Logging
+app.use(morgan('dev')); // Basic HTTP logging (supplementary)
 app.use(express.json()); // Parse JSON bodies
 app.use(express.urlencoded({ extended: true })); // Parse URL-encoded bodies
 
@@ -45,6 +56,7 @@ app.use((req, res) => {
 });
 
 // Error handling middleware (must be last)
+app.use(errorLogger); // Log errors before handling
 app.use(errorHandler);
 
 // Start server
