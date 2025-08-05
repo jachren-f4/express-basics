@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Express API Frontend</title>
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Express User Management</h1>
+            <p class="subtitle">Simple frontend for interacting with the Express API</p>
+        </header>
+
+        <div class="api-info">
+            <h2>API Status</h2>
+            <div id="health-status" class="status-box">
+                <span class="status-label">Server Status:</span>
+                <span id="status-text" class="status-value">Checking...</span>
+            </div>
+        </div>
+
+        <main>
+            <section class="user-form">
+                <h2>Add New User</h2>
+                <form id="add-user-form">
+                    <div class="form-group">
+                        <label for="name">Name:</label>
+                        <input type="text" id="name" name="name" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="email">Email:</label>
+                        <input type="email" id="email" name="email" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="age">Age:</label>
+                        <input type="number" id="age" name="age" min="0" max="120">
+                    </div>
+                    <button type="submit" class="btn btn-primary">Add User</button>
+                </form>
+            </section>
+
+            <section class="users-list">
+                <h2>Users List</h2>
+                <div class="list-controls">
+                    <button id="refresh-users" class="btn btn-secondary">Refresh List</button>
+                    <span id="user-count" class="user-count">Total: 0 users</span>
+                </div>
+                <div id="users-container" class="users-container">
+                    <!-- Users will be dynamically loaded here -->
+                </div>
+            </section>
+        </main>
+
+        <div id="message" class="message hidden"></div>
+
+        <!-- Edit User Modal -->
+        <div id="edit-modal" class="modal hidden">
+            <div class="modal-content">
+                <span class="close">&times;</span>
+                <h2>Edit User</h2>
+                <form id="edit-user-form">
+                    <input type="hidden" id="edit-id" name="id">
+                    <div class="form-group">
+                        <label for="edit-name">Name:</label>
+                        <input type="text" id="edit-name" name="name" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="edit-email">Email:</label>
+                        <input type="email" id="edit-email" name="email" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="edit-age">Age:</label>
+                        <input type="number" id="edit-age" name="age" min="0" max="120">
+                    </div>
+                    <button type="submit" class="btn btn-primary">Update User</button>
+                    <button type="button" class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- API and Utilities -->
+    <script src="js/api/authApi.js"></script>
+    <script src="js/api/userApi.js"></script>
+    <script src="js/utils/domHelpers.js"></script>
+    
+    <!-- Components -->
+    <script src="js/components/userCard.js"></script>
+    <script src="js/components/messageHandler.js"></script>
+    <script src="js/components/modal.js"></script>
+    
+    <!-- Main Application -->
+    <script src="js/userManager.js"></script>
+    
+    <script>
+        // Initialize application when DOM is loaded
+        document.addEventListener('DOMContentLoaded', () => {
+            userManager = new UserManager();
+        });
+        
+        // Global functions for onclick handlers
+        function openEditModal(userId) {
+            userManager.openEditModal(userId);
+        }
+        
+        function closeModal() {
+            userManager.closeModal();
+        }
+        
+        function deleteUser(userId) {
+            userManager.deleteUser(userId);
+        }
+    </script>
+</body>
+</html>
