@@ -4,17 +4,25 @@ const AuthController = require('../controllers/AuthController');
 const authValidators = require('../validators/authValidators');
 const handleValidationErrors = require('../middleware/validationHandler');
 const { authenticate } = require('../middleware/auth');
+const { 
+    loginLimiter, 
+    registerLimiter, 
+    passwordResetLimiter, 
+    emailVerificationLimiter 
+} = require('../middleware/rateLimiter');
 
 const authController = new AuthController();
 
 // Public routes
 router.post('/register',
+    registerLimiter,
     authValidators.register,
     handleValidationErrors,
     authController.register
 );
 
 router.post('/login',
+    loginLimiter,
     authValidators.login,
     handleValidationErrors,
     authController.login
@@ -57,12 +65,14 @@ router.post('/refresh-token',
 
 // Email verification routes
 router.post('/verify-email',
+    emailVerificationLimiter,
     authValidators.verifyEmail,
     handleValidationErrors,
     authController.verifyEmail
 );
 
 router.post('/resend-verification',
+    emailVerificationLimiter,
     authValidators.resendVerification,
     handleValidationErrors,
     authController.resendVerification
@@ -70,12 +80,14 @@ router.post('/resend-verification',
 
 // Password reset routes
 router.post('/forgot-password',
+    passwordResetLimiter,
     authValidators.forgotPassword,
     handleValidationErrors,
     authController.forgotPassword
 );
 
 router.post('/reset-password',
+    passwordResetLimiter,
     authValidators.resetPassword,
     handleValidationErrors,
     authController.resetPassword
