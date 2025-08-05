@@ -1,6 +1,7 @@
 const AUTH_CONSTANTS = {
     JWT: {
-        EXPIRES_IN: '24h',
+        EXPIRES_IN: '1h',  // Reduced from 24h for security
+        REFRESH_EXPIRES_IN: '7d',  // Refresh token expiration
         ALGORITHM: 'HS256'
     },
     BCRYPT: {
