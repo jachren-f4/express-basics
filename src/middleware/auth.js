@@ -45,14 +45,43 @@ class AuthMiddleware {
             // Verify token
             const decoded = this.authService.verifyToken(token);
             
+            // Validate decoded token structure
+            if (!decoded || !decoded.id) {
+                return ResponseFormatter.error(
+                    res, 
+                    AUTH_MESSAGES.INVALID_TOKEN, 
+                    HTTP_STATUS.UNAUTHORIZED
+                );
+            }
+            
             // Add user info to request
             req.user = decoded;
             req.token = token;
             
             next();
         } catch (error) {
+            // Log authentication error for debugging (don't expose in production)
+            console.error('Authentication error:', error.message);
+            
             if (error.status) {
                 return ResponseFormatter.error(res, error.message, error.status);
+            }
+            
+            // Handle specific JWT errors
+            if (error.name === 'TokenExpiredError') {
+                return ResponseFormatter.error(
+                    res, 
+                    AUTH_MESSAGES.TOKEN_EXPIRED || 'Token has expired', 
+                    HTTP_STATUS.UNAUTHORIZED
+                );
+            }
+            
+            if (error.name === 'JsonWebTokenError') {
+                return ResponseFormatter.error(
+                    res, 
+                    AUTH_MESSAGES.INVALID_TOKEN, 
+                    HTTP_STATUS.UNAUTHORIZED
+                );
             }
             
             return ResponseFormatter.error(
@@ -97,27 +126,45 @@ class AuthMiddleware {
     // Middleware to check if user owns the resource
     authorizeOwner = (resourceIdParam = 'id') => {
         return (req, res, next) => {
-            const resourceId = req.params[resourceIdParam];
-            const userId = req.user?.id;
+            try {
+                const resourceId = req.params[resourceIdParam];
+                const userId = req.user?.id;
 
-            if (!userId) {
+                if (!userId) {
+                    return ResponseFormatter.error(
+                        res, 
+                        AUTH_MESSAGES.UNAUTHORIZED, 
+                        HTTP_STATUS.UNAUTHORIZED
+                    );
+                }
+
+                // Validate resource ID format
+                if (!resourceId || isNaN(parseInt(resourceId))) {
+                    return ResponseFormatter.error(
+                        res, 
+                        'Invalid resource ID', 
+                        HTTP_STATUS.BAD_REQUEST
+                    );
+                }
+
+                // Check if user is trying to access their own resource
+                if (parseInt(resourceId) !== parseInt(userId)) {
+                    return ResponseFormatter.error(
+                        res, 
+                        AUTH_MESSAGES.ACCESS_DENIED, 
+                        HTTP_STATUS.FORBIDDEN
+                    );
+                }
+
+                next();
+            } catch (error) {
+                console.error('Authorization error:', error.message);
                 return ResponseFormatter.error(
                     res, 
-                    AUTH_MESSAGES.UNAUTHORIZED, 
-                    HTTP_STATUS.UNAUTHORIZED
+                    'Authorization failed', 
+                    HTTP_STATUS.INTERNAL_SERVER_ERROR
                 );
             }
-
-            // Check if user is trying to access their own resource
-            if (parseInt(resourceId) !== parseInt(userId)) {
-                return ResponseFormatter.error(
-                    res, 
-                    AUTH_MESSAGES.ACCESS_DENIED, 
-                    HTTP_STATUS.FORBIDDEN
-                );
-            }
-
-            next();
         };
     };
 
