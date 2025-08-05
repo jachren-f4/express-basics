@@ -25,7 +25,9 @@ const authValidators = {
             })
             .withMessage(AUTH_MESSAGES.PASSWORD_TOO_SHORT)
             .matches(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/)
-            .withMessage('Password must contain at least one lowercase letter, one uppercase letter, and one number'),
+            .withMessage('Password must contain at least one lowercase letter, one uppercase letter, and one number')
+            .not().contains('password')
+            .withMessage('Password cannot contain the word "password"'),
         
         body('confirmPassword')
             .custom((value, { req }) => {
