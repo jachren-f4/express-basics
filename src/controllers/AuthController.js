@@ -138,6 +138,67 @@ class AuthController {
             next(error);
         }
     };
+
+    verifyEmail = async (req, res, next) => {
+        try {
+            const { token } = req.body;
+            const result = await this.authService.verifyEmail(token);
+            ResponseFormatter.success(res, result);
+        } catch (error) {
+            if (error.status === HTTP_STATUS.BAD_REQUEST) {
+                return ResponseFormatter.badRequest(res, error.message);
+            }
+            if (error.status === HTTP_STATUS.NOT_FOUND) {
+                return ResponseFormatter.notFound(res, error.message);
+            }
+            next(error);
+        }
+    };
+
+    resendVerification = async (req, res, next) => {
+        try {
+            const { email } = req.body;
+            const result = await this.authService.resendVerification(email);
+            ResponseFormatter.success(res, result);
+        } catch (error) {
+            if (error.status === HTTP_STATUS.NOT_FOUND) {
+                return ResponseFormatter.notFound(res, error.message);
+            }
+            if (error.status === HTTP_STATUS.BAD_REQUEST) {
+                return ResponseFormatter.badRequest(res, error.message);
+            }
+            next(error);
+        }
+    };
+
+    forgotPassword = async (req, res, next) => {
+        try {
+            const { email } = req.body;
+            const result = await this.authService.forgotPassword(email);
+            ResponseFormatter.success(res, result);
+        } catch (error) {
+            if (error.status === HTTP_STATUS.NOT_FOUND) {
+                return ResponseFormatter.notFound(res, error.message);
+            }
+            next(error);
+        }
+    };
+
+    resetPassword = async (req, res, next) => {
+        try {
+            const { token, newPassword } = req.body;
+            const result = await this.authService.resetPassword(token, newPassword);
+            ResponseFormatter.success(res, result);
+        } catch (error) {
+            if (error.status === HTTP_STATUS.BAD_REQUEST) {
+                return ResponseFormatter.badRequest(res, error.message);
+            }
+            if (error.status === HTTP_STATUS.NOT_FOUND) {
+                return ResponseFormatter.notFound(res, error.message);
+            }
+            next(error);
+        }
+    };
 }
 
 module.exports = AuthController;
