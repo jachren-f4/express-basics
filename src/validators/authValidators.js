@@ -102,6 +102,53 @@ const authValidators = {
 
     refreshToken: [
         // No body validation needed - token comes from header
+    ],
+
+    verifyEmail: [
+        body('token')
+            .notEmpty()
+            .withMessage('Verification token is required')
+            .isLength({ min: 10 })
+            .withMessage('Invalid verification token format')
+    ],
+
+    resendVerification: [
+        body('email')
+            .isEmail()
+            .withMessage('Valid email is required')
+            .normalizeEmail()
+    ],
+
+    forgotPassword: [
+        body('email')
+            .isEmail()
+            .withMessage('Valid email is required')
+            .normalizeEmail()
+    ],
+
+    resetPassword: [
+        body('token')
+            .notEmpty()
+            .withMessage('Reset token is required')
+            .isLength({ min: 10 })
+            .withMessage('Invalid reset token format'),
+        
+        body('newPassword')
+            .isLength({ 
+                min: AUTH_CONSTANTS.PASSWORD.MIN_LENGTH, 
+                max: AUTH_CONSTANTS.PASSWORD.MAX_LENGTH 
+            })
+            .withMessage(AUTH_MESSAGES.PASSWORD_TOO_SHORT)
+            .matches(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/)
+            .withMessage('Password must contain at least one lowercase letter, one uppercase letter, and one number'),
+        
+        body('confirmPassword')
+            .custom((value, { req }) => {
+                if (value !== req.body.newPassword) {
+                    throw new Error('Password confirmation does not match new password');
+                }
+                return true;
+            })
     ]
 };
 
